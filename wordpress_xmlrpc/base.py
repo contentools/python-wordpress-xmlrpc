@@ -25,6 +25,9 @@ class Client(object):
 
     def setup(self, transport, verbose, safe_transport):
         try:
+            protocol, _ = urllib.parse.splittype(self.url)
+            if protocol == 'https':
+                    transport = safe_transport
             self.server = xmlrpc_client.ServerProxy(self.url, allow_none=True, transport=transport,
                                                     verbose=verbose)
             self.supported_methods = self.server.mt.supportedMethods()
@@ -35,10 +38,6 @@ class Client(object):
                     self.url = e.headers['location']
                 except KeyError:
                     self.url = e.headers['Location']
-
-                protocol, _ = urllib.parse.splittype(self.url)
-                if protocol == 'https':
-                    transport = safe_transport
 
                 self.setup(transport, verbose, None)
             else:
